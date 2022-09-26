@@ -1,0 +1,3 @@
+# CHATTY 💬
+
+Realtime Chat App 😎
