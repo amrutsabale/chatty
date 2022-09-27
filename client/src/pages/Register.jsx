@@ -1,52 +1,104 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import Logo from "../assets/logo.svg";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { registerUser } from "../apis";
+
+export const toastOptions = {
+  position: "bottom-center",
+  autoClose: 8000,
+  pauseOnHover: true,
+  theme: "dark",
+};
 
 const Register = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("form");
+  const [userInfo, setUserInfo] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
+
+  const handleValidations = () => {
+    const { username, email, password, confirm_password } = userInfo;
+    if (password !== confirm_password) {
+      toast.error("Password and Confirm Password should be same", toastOptions);
+      return false;
+    } else if (username.length < 3) {
+      toast.error("Username should be greater than 3 characters", toastOptions);
+      return false;
+    } else if (password.length < 8) {
+      toast.error(
+        "Password should be equal or greater than 8 characters",
+        toastOptions
+      );
+      return false;
+    } else if (email === "") {
+      toast.error("Email is required", toastOptions);
+      return false;
+    }
+    return true;
   };
-  const handleChange = (e) => {};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (handleValidations()) {
+      const { username, email, password } = userInfo;
+      try {
+        const { data } = await registerUser({ username, email, password });
+        console.log({ data });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleChange = ({ target: { name, value } }) => {
+    setUserInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
-    <FormContainer>
-      <form onSubmit={handleSubmit}>
-        <div className="brand">
-          <img src={Logo} alt="Logo" />
-          <h1>Chatty</h1>
-        </div>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          name="confirm_password"
-          placeholder="Confirm Password"
-          onChange={handleChange}
-        />
-        <button type="submit">Create User</button>
-        <span>
-          Already have an aacount?<Link to="/login"> Login</Link>
-        </span>
-      </form>
-    </FormContainer>
+    <>
+      <FormContainer>
+        <form onSubmit={handleSubmit}>
+          <div className="brand">
+            <img src={Logo} alt="Logo" />
+            <h1>Chatty</h1>
+          </div>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            onChange={handleChange}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            name="confirm_password"
+            placeholder="Confirm Password"
+            onChange={handleChange}
+          />
+          <button type="submit">Create User</button>
+          <span>
+            Already have an aacount?<Link to="/login"> Login</Link>
+          </span>
+        </form>
+      </FormContainer>
+      <ToastContainer />
+    </>
   );
 };
 
