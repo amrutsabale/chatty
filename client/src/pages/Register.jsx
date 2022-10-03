@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Logo from "../assets/logo.svg";
 import { ToastContainer, toast } from "react-toastify";
@@ -20,6 +20,7 @@ const Register = () => {
     password: "",
     confirm_password: "",
   });
+  const navigate = useNavigate();
 
   const handleValidations = () => {
     const { username, email, password, confirm_password } = userInfo;
@@ -49,6 +50,12 @@ const Register = () => {
       try {
         const { data } = await registerUser({ username, email, password });
         console.log({ data });
+        if (data.status === false) {
+          toast.error(data.msg, toastOptions);
+        } else {
+          localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+          navigate("/");
+        }
       } catch (err) {
         console.error(err);
       }
